@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Avatar,
   Button,
   Card,
   CardActions,
@@ -9,8 +10,10 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import { update } from "./api-user";
+import { read, update } from "./api-user";
 import auth from "../auth/auth-helper";
+import FileUpload from "@material-ui/icons/AddPhotoAlternate";
+import { useNavigate } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -20,12 +23,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(5),
     paddingBottom: theme.spacing(2),
   },
+  title: {
+    margin: theme.spacing(2),
+    color: theme.palette.protectedTitle,
+  },
   error: {
     verticalAlign: "middle",
-  },
-  title: {
-    marginTop: theme.spacing(2),
-    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -36,38 +39,80 @@ const useStyles = makeStyles((theme) => ({
     margin: "auto",
     marginBottom: theme.spacing(2),
   },
+  bigAvatar: {
+    width: 60,
+    height: 60,
+    margin: "auto",
+  },
+  input: {
+    display: "none",
+  },
+  filename: {
+    marginLeft: "10px",
+  },
 }));
 
 const EditProfile = () => {
   const classes = useStyles();
-  const authentication = auth.isAuthenticated();
-  const user = authentication.user;
-  const token = authentication.token;
+  const navigate = useNavigate();
   const [values, setValues] = useState({
-    name: user.name,
-    email: user.email,
-    password: user.password,
-    open: false,
+    name: "",
+    about: "",
+    photo: "",
+    email: "",
+    password: "",
+    redirectToProfile: false,
     error: "",
+    id: "",
   });
+  const jwt = auth.isAuthenticated();
+  const token = jwt.token;
+  const userId = jwt.user._id;
+
+  useEffect(() => {
+    const fetchUser = async (signal) => {
+      const data = await read(userId, token, signal);
+      if (data && data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({
+          ...values,
+          name: data.name,
+          email: data.email,
+          about: data.about,
+        });
+      }
+    };
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    fetchUser(signal);
+    return () => abortController.abort();
+  }, [userId]);
 
   const handleChange = (name) => (event) => {
-    setValues({ ...values, [name]: event.target.value });
+    const value = name === "photo" ? event.target.files[0] : event.target.value;
+    setValues({ ...values, [name]: value });
   };
 
   const clickSubmit = async () => {
-    const updatedUser = {
-      name: values.name || undefined,
-      email: values.email || undefined,
-      password: values.password || undefined,
-    };
-    const data = await update(user._id, token, updatedUser);
+    const userData = new FormData();
+    values.name && userData.append("name", values.name);
+    values.email && userData.append("email", values.email);
+    values.passoword && userData.append("passoword", values.passoword);
+    values.about && userData.append("about", values.about);
+    values.photo && userData.append("photo", values.photo);
+
+    const data = await update(userId, token, userData);
     if (data.error) {
       setValues({ ...values, error: data.error });
     } else {
-      navigate(`/user/${user._id}`);
+      navigate(`/user/${userId}`);
     }
   };
+
+  const photoUrl = userId
+    ? `/api/users/photo/${userId}?${new Date().getTime()}`
+    : "/api/users/defaultphoto";
 
   return (
     <Card className={classes.card}>
@@ -75,6 +120,24 @@ const EditProfile = () => {
         <Typography variant='h6' className={classes.title}>
           Edit Profile
         </Typography>
+        <Avatar src={photoUrl} className={classes.bigAvatar} />
+        <br />
+        <input
+          accept='image/*'
+          type='file'
+          onChange={handleChange("photo")}
+          style={{ display: "none" }}
+          id='icon-button-file'
+        />
+        <label htmlFor='icon-button-file'>
+          <Button variant='contained' color='default' component='span'>
+            Upload <FileUpload />
+          </Button>
+        </label>
+        <span className={classes.filename}>
+          {values.photo ? values.photo.name : ""}
+        </span>
+        <br />
         <TextField
           id='name'
           label='Name'
@@ -84,6 +147,16 @@ const EditProfile = () => {
           margin='normal'
         />
         <br />
+        <TextField
+          id='multiline-flexible'
+          label='About'
+          multiline
+          rows='2'
+          value={values.about}
+          onChange={handleChange("about")}
+          className={classes.textField}
+          margin='normal'
+        />
         <TextField
           id='email'
           type='email'

@@ -2,7 +2,6 @@ import React from "react";
 import { Card, CardContent, CardMedia, makeStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import unicornbikeImg from "./../assets/images/unicornbike.jpg";
-import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -28,7 +27,7 @@ const Home = () => {
       <Typography variant='h6' className={classes.title}>
         Home Page
       </Typography>
-      <Link to='/users'>Users</Link>
+
       <CardMedia
         className={classes.media}
         image={unicornbikeImg}

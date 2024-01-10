@@ -49,10 +49,9 @@ const update = async (userId, token, user) => {
       method: "PUT",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
         Authorization: "Bearer " + token,
       },
-      body: JSON.stringify(user),
+      body: user,
     });
     return await response.json();
   } catch (err) {

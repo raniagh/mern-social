@@ -31,6 +31,11 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     color: theme.palette.protectedTitle,
   },
+  bigAvatar: {
+    width: 60,
+    height: 60,
+    margin: 10,
+  },
 }));
 
 const Profile = () => {
@@ -41,6 +46,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const authentication = auth.isAuthenticated();
   const token = authentication.token;
+
+  const photoUrl = userId
+    ? `/api/users/photo/${userId}?${new Date().getTime()}`
+    : "/api/users/defaultphoto";
 
   useEffect(() => {
     // Define an asynchronous function to fetch the user list
@@ -73,9 +82,7 @@ const Profile = () => {
       <List dense>
         <ListItem>
           <ListItemAvatar>
-            <Avatar>
-              <Person />
-            </Avatar>
+            <Avatar src={photoUrl} className={classes.bigAvatar} />
           </ListItemAvatar>
           <ListItemText primary={user?.name} secondary={user?.email} />
           {authentication?.user?._id === userId && (
@@ -88,6 +95,9 @@ const Profile = () => {
               <DeleteUser userId={userId} token={token} />
             </ListItemSecondaryAction>
           )}
+        </ListItem>
+        <ListItem>
+          <ListItemText primary={user?.about} />
         </ListItem>
         <Divider />
         <ListItem>
