@@ -8,6 +8,7 @@ import Profile from "./user/Profile";
 import EditProfile from "./user/EditProfile";
 import PrivateRoute from "./auth/PrivateRoute";
 import Menu from "./core/Menu";
+import FindPeople from "./user/FindPeople";
 
 const MainRouter = () => {
   return (
@@ -19,6 +20,7 @@ const MainRouter = () => {
         <Route path='/signup' element={<Signup />} />
         <Route path='/signin' element={<Signin />} />
         <Route path='/user/:userId' element={<Profile />} />
+        <Route path='/find' element={<FindPeople />} />
         <Route
           path='/user/edit/:userId'
           element={

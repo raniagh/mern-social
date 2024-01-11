@@ -75,4 +75,55 @@ const remove = async (userId, token) => {
   }
 };
 
-export { create, list, read, update, remove };
+const follow = async (userId, token, followId) => {
+  try {
+    let response = await fetch("/api/users/follow/", {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ userId, followId: followId }),
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const unfollow = async (userId, token, unfollowId) => {
+  try {
+    let response = await fetch("/api/users/unfollow/", {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ userId, unfollowId: unfollowId }),
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const findPeople = async (userId, token, signal) => {
+  try {
+    let response = await fetch("/api/users/findpeople/" + userId, {
+      method: "GET",
+      signal: signal,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export { create, list, read, update, remove, follow, unfollow, findPeople };
