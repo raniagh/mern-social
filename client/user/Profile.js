@@ -22,6 +22,7 @@ import DeleteUser from "./DeleteUser";
 import FollowProfileButton from "./FollowProfileButton";
 import FollowGrid from "./FollowGrid";
 import ProfileTabs from "./ProfileTabs";
+import { listByUser } from "../post/api-post";
 
 const useStyles = makeStyles((theme) => ({
   root: theme.mixins.gutters({
@@ -44,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
 const Profile = () => {
   const classes = useStyles();
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [following, setFollowing] = useState(false);
   const params = useParams();
   const userId = params.userId;
@@ -75,6 +77,7 @@ const Profile = () => {
       } else {
         setUser(data);
         setFollowing(checkFollow(data));
+        loadPosts();
       }
     };
     // Create an AbortController and get its signal
@@ -94,6 +97,22 @@ const Profile = () => {
     } else {
       setFollowing(!following);
     }
+  };
+
+  const loadPosts = async () => {
+    const data = await listByUser(userId, token);
+    if (data && data.error) {
+      console.log(data.error);
+    } else {
+      setPosts(data);
+    }
+  };
+
+  const removePost = (post) => {
+    const updatedPosts = posts;
+    const index = updatedPosts.indexOf(post);
+    updatedPosts.splice(index, 1);
+    setPosts(updatedPosts);
   };
 
   return (
@@ -133,7 +152,7 @@ const Profile = () => {
           />
         </ListItem>
       </List>
-      <ProfileTabs user={user} />
+      <ProfileTabs user={user} posts={posts} removePostUpdate={removePost} />
     </Paper>
   );
 };

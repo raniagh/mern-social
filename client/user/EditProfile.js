@@ -151,7 +151,7 @@ const EditProfile = () => {
           id='multiline-flexible'
           label='About'
           multiline
-          rows='2'
+          minRows='2'
           value={values.about}
           onChange={handleChange("about")}
           className={classes.textField}
