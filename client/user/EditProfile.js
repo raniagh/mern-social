@@ -95,6 +95,7 @@ const EditProfile = () => {
   };
 
   const clickSubmit = async () => {
+    //Uses the formData API to store the form data in the format needed for encoding in the multipart/form-data type
     const userData = new FormData();
     values.name && userData.append("name", values.name);
     values.email && userData.append("email", values.email);

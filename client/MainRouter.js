@@ -21,8 +21,6 @@ const MainRouter = () => {
         <Route path='/signup' element={<Signup />} />
         <Route path='/signin' element={<Signin />} />
         <Route path='/user/:userId' element={<Profile />} />
-        <Route path='/find' element={<FindPeople />} />
-        <Route path='/news' element={<Newsfeed />} />
         <Route
           path='/user/edit/:userId'
           element={

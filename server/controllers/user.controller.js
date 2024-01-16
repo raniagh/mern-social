@@ -56,6 +56,7 @@ const read = (req, res) => {
 };
 
 const update = async (req, res) => {
+  //The formidable allow the server to read the multipart form data & give us access to the fields and file.
   let form = formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, async (err, fields, files) => {
@@ -67,7 +68,9 @@ const update = async (req, res) => {
     let user = req.profile;
     user = extend(user, fields);
     user.updated = Date.now();
+    //If there is a file formidable store it temporarily in the filesystem.
     if (files.photo) {
+      //fs module retrieve the file data and type and store it in the photo field
       user.photo.data = fs.readFileSync(files.photo.path);
       user.photo.contentType = files.photo.type;
     }
@@ -98,6 +101,9 @@ const remove = async (req, res) => {
   }
 };
 
+/*If photo is found , send it in the response 
+otherwise we will call next to return the default photo.
+*/
 const photo = (req, res, next) => {
   if (req.profile.photo.data) {
     res.set("Content-Type", req.profile.photo.contentType);
